@@ -1,9 +1,4 @@
-//
-//  ContentView.swift
-//  CareerGrid
-//
-//  Created by Aaditya Thande on 7/10/2026.
-//
+
 
 import SwiftUI
 
