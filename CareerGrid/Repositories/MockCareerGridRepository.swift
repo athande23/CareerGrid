@@ -115,6 +115,14 @@ final class MockCareerGridRepository: CareerGridRepository {
         interviewQuestions.append(question)
     }
     
+    func deleteInterviewQuestion(
+        id: UUID
+    ) throws {
+        interviewQuestions.removeAll {
+            $0.id == id
+        }
+    }
+    
     func fetchCalendarEvents() throws -> [CalendarEventModel] {
         calendarEvents.sorted {
             $0.date < $1.date

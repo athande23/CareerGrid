@@ -3,9 +3,13 @@ import Foundation
 struct SaveJobOpportunityUseCase {
     
     private let repository: CareerGridRepository
+    private let createJobOpportunityUseCase: CreateJobOpportunityUseCase
     
     init(repository: CareerGridRepository) {
         self.repository = repository
+        self.createJobOpportunityUseCase = CreateJobOpportunityUseCase(
+            repository: repository
+        )
     }
     
     func execute(
