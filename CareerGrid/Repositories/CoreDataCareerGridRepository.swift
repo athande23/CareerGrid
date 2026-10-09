@@ -10,7 +10,22 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     ) {
         self.context = context
     }
+    
 
+
+    func fetchAllOpportunities() throws -> [JobOpportunityModel] {
+        let request = NSFetchRequest<JobOpportunity>(entityName: "JobOpportunity")
+
+        request.sortDescriptors = [
+            NSSortDescriptor(
+                key: "applicationDeadline",
+                ascending: true
+            )
+        ]
+
+        let entities = try context.fetch(request)
+        return try entities.map { try mapJobOpportunity($0) }
+    }
     
     func fetchAvailableOpportunities() throws -> [JobOpportunityModel] {
         let request = NSFetchRequest<NSManagedObject>(
@@ -32,6 +47,7 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         
         return try objects.map(mapJobOpportunity)
     }
+    
     
     func fetchSavedOpportunities() throws -> [JobOpportunityModel] {
         let request = NSFetchRequest<NSManagedObject>(

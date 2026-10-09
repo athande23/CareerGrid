@@ -4,6 +4,8 @@ protocol CareerGridRepository {
 
     func fetchAvailableOpportunities() throws -> [JobOpportunityModel]
     
+    func fetchAllOpportunities() throws -> [JobOpportunityModel]
+    
     func fetchSavedOpportunities() throws -> [JobOpportunityModel]
     
     func fetchOpportunity(id: UUID) throws -> JobOpportunityModel?

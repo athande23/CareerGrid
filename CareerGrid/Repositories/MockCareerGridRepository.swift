@@ -7,6 +7,14 @@ final class MockCareerGridRepository: CareerGridRepository {
     var interviewQuestions: [InterviewQuestionModel] = []
     var calendarEvents: [CalendarEventModel] = []
     var shareDrafts: [ShareDraftModel] = []
+    
+    func fetchAllOpportunities() throws -> [JobOpportunityModel] {
+        opportunities.sorted {
+            let firstDeadline = $0.applicationDeadline ?? .distantFuture
+            let secondDeadline = $1.applicationDeadline ?? .distantFuture
+            return firstDeadline < secondDeadline
+        }
+    }
 
     func fetchAvailableOpportunities() throws -> [JobOpportunityModel] {
         opportunities.filter { opportunity in
