@@ -90,6 +90,26 @@ final class InterviewPreparationViewModel {
         }
     }
     
+    func deleteQuestion(id: UUID) {
+        errorMessage = nil
+        
+        do {
+            try repository.deleteInterviewQuestion(
+                id: id
+            )
+            
+            guard let application = selectedApplication else {
+                return
+            }
+            
+            loadInterviewQuestions(
+                for: application.id
+            )
+        } catch {
+            errorMessage = "Unable to delete interview question."
+        }
+    }
+    
     func updateNotes(
         notes: String?
     ) {

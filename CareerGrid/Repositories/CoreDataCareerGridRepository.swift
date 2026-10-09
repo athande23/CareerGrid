@@ -2,20 +2,19 @@ import CoreData
 import Foundation
 
 final class CoreDataCareerGridRepository: CareerGridRepository {
-    
     private let context: NSManagedObjectContext
-    
+
     init(
         context: NSManagedObjectContext = CoreDataStack.shared.container.viewContext
     ) {
         self.context = context
     }
-    
 
 
     func fetchAllOpportunities() throws -> [JobOpportunityModel] {
-        let request = NSFetchRequest<JobOpportunity>(entityName: "JobOpportunity")
-
+        let request = NSFetchRequest<NSManagedObject>(
+            entityName: "JobOpportunity"
+        )
         request.sortDescriptors = [
             NSSortDescriptor(
                 key: "applicationDeadline",
@@ -24,9 +23,9 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
 
         let entities = try context.fetch(request)
-        return try entities.map { try mapJobOpportunity($0) }
+        return try entities.map(mapJobOpportunity)
     }
-    
+
     func fetchAvailableOpportunities() throws -> [JobOpportunityModel] {
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "JobOpportunity"
@@ -44,7 +43,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapJobOpportunity)
     }
     
@@ -66,7 +64,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapJobOpportunity)
     }
     
@@ -98,24 +95,51 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             id: opportunity.id
         )
         
-        object.setValue(opportunity.id, forKey: "id")
-        object.setValue(opportunity.roleTitle, forKey: "roleTitle")
-        object.setValue(opportunity.industry, forKey: "industry")
-        object.setValue(opportunity.location, forKey: "location")
-        object.setValue(opportunity.description, forKey: "jobDescription")
-        object.setValue(opportunity.requirements, forKey: "requirements")
+        object.setValue(
+            opportunity.id,
+            forKey: "id"
+        )
+        
+        object.setValue(
+            opportunity.roleTitle,
+            forKey: "roleTitle"
+        )
+        
+        object.setValue(
+            opportunity.industry,
+            forKey: "industry"
+        )
+        
+        object.setValue(
+            opportunity.location,
+            forKey: "location"
+        )
+        
+        object.setValue(
+            opportunity.description,
+            forKey: "jobDescription"
+        )
+        
+        object.setValue(
+            opportunity.requirements,
+            forKey: "requirements"
+        )
+        
         object.setValue(
             opportunity.interviewProcess,
             forKey: "interviewProcess"
         )
+        
         object.setValue(
             opportunity.sourceURL?.absoluteString,
             forKey: "sourceURL"
         )
+        
         object.setValue(
             opportunity.applicationDeadline,
             forKey: "applicationDeadline"
         )
+        
         object.setValue(
             opportunity.isSaved,
             forKey: "isSaved"
@@ -125,21 +149,32 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             model: opportunity.company
         )
         
-        object.setValue(company, forKey: "company")
+        object.setValue(
+            company,
+            forKey: "company"
+        )
         
         try saveContext()
     }
     
-    func unsaveOpportunity(id: UUID) throws {
-        guard let object = try fetchOpportunityObject(id: id) else {
+    func unsaveOpportunity(
+        id: UUID
+    ) throws {
+        guard let object = try fetchOpportunityObject(
+            id: id
+        ) else {
             return
         }
         
-        object.setValue(false, forKey: "isSaved")
+        object.setValue(
+            false,
+            forKey: "isSaved"
+        )
         
         try saveContext()
     }
- 
+    
+
     func fetchApplications() throws -> [JobApplicationModel] {
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "JobApplication"
@@ -153,7 +188,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapJobApplication)
     }
     
@@ -186,19 +220,26 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             into: context
         )
         
-        object.setValue(application.id, forKey: "id")
+        object.setValue(
+            application.id,
+            forKey: "id"
+        )
+        
         object.setValue(
             application.applicationDate,
             forKey: "applicationDate"
         )
+        
         object.setValue(
             application.currentStage.rawValue,
             forKey: "currentStage"
         )
+        
         object.setValue(
             application.status.rawValue,
             forKey: "status"
         )
+        
         object.setValue(
             application.notes,
             forKey: "notes"
@@ -218,13 +259,16 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         try saveContext()
     }
     
-    func deleteApplication(id: UUID) throws {
-        guard let object = try fetchApplicationObject(id: id) else {
+    func deleteApplication(
+        id: UUID
+    ) throws {
+        guard let object = try fetchApplicationObject(
+            id: id
+        ) else {
             return
         }
         
         context.delete(object)
-        
         try saveContext()
     }
     
@@ -232,7 +276,9 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         id: UUID,
         stage: ApplicationStage
     ) throws {
-        guard let object = try fetchApplicationObject(id: id) else {
+        guard let object = try fetchApplicationObject(
+            id: id
+        ) else {
             throw RepositoryError.applicationNotFound
         }
         
@@ -248,15 +294,20 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         id: UUID,
         notes: String?
     ) throws {
-        guard let object = try fetchApplicationObject(id: id) else {
+        guard let object = try fetchApplicationObject(
+            id: id
+        ) else {
             throw RepositoryError.applicationNotFound
         }
         
-        object.setValue(notes, forKey: "notes")
+        object.setValue(
+            notes,
+            forKey: "notes"
+        )
         
         try saveContext()
     }
-    
+
     func fetchInterviewQuestions(
         for applicationID: UUID
     ) throws -> [InterviewQuestionModel] {
@@ -270,7 +321,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         )
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapInterviewQuestion)
     }
     
@@ -282,16 +332,26 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             into: context
         )
         
-        object.setValue(question.id, forKey: "id")
-        object.setValue(question.question, forKey: "question")
+        object.setValue(
+            question.id,
+            forKey: "id"
+        )
+        
+        object.setValue(
+            question.question,
+            forKey: "question"
+        )
+        
         object.setValue(
             question.exampleAnswer,
             forKey: "exampleAnswer"
         )
+        
         object.setValue(
             question.category.rawValue,
             forKey: "category"
         )
+        
         object.setValue(
             question.isCustom,
             forKey: "isCustom"
@@ -310,7 +370,28 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         
         try saveContext()
     }
-
+    
+    func deleteInterviewQuestion(
+        id: UUID
+    ) throws {
+        let request = NSFetchRequest<NSManagedObject>(
+            entityName: "InterviewQuestion"
+        )
+        
+        request.predicate = NSPredicate(
+            format: "id == %@",
+            id as CVarArg
+        )
+        
+        request.fetchLimit = 1
+        
+        guard let object = try context.fetch(request).first else {
+            throw RepositoryError.invalidStoredInterviewQuestion
+        }
+        
+        context.delete(object)
+        try saveContext()
+    }
     
     func fetchCalendarEvents() throws -> [CalendarEventModel] {
         let request = NSFetchRequest<NSManagedObject>(
@@ -325,7 +406,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapCalendarEvent)
     }
     
@@ -337,14 +417,30 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             into: context
         )
         
-        object.setValue(event.id, forKey: "id")
-        object.setValue(event.title, forKey: "title")
-        object.setValue(event.date, forKey: "date")
+        object.setValue(
+            event.id,
+            forKey: "id"
+        )
+        
+        object.setValue(
+            event.title,
+            forKey: "title"
+        )
+        
+        object.setValue(
+            event.date,
+            forKey: "date"
+        )
+        
         object.setValue(
             event.eventType.rawValue,
             forKey: "eventType"
         )
-        object.setValue(event.notes, forKey: "notes")
+        
+        object.setValue(
+            event.notes,
+            forKey: "notes"
+        )
         
         if let opportunityID = event.opportunityID {
             guard let opportunity = try fetchOpportunityObject(
@@ -393,18 +489,68 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             throw RepositoryError.calendarEventNotFound
         }
         
-        object.setValue(event.title, forKey: "title")
-        object.setValue(event.date, forKey: "date")
+        object.setValue(
+            event.title,
+            forKey: "title"
+        )
+        
+        object.setValue(
+            event.date,
+            forKey: "date"
+        )
+        
         object.setValue(
             event.eventType.rawValue,
             forKey: "eventType"
         )
-        object.setValue(event.notes, forKey: "notes")
+        
+        object.setValue(
+            event.notes,
+            forKey: "notes"
+        )
+        
+        object.setValue(
+            nil,
+            forKey: "opportunity"
+        )
+        
+        object.setValue(
+            nil,
+            forKey: "application"
+        )
+        
+        if let opportunityID = event.opportunityID {
+            guard let opportunity = try fetchOpportunityObject(
+                id: opportunityID
+            ) else {
+                throw RepositoryError.opportunityNotFound
+            }
+            
+            object.setValue(
+                opportunity,
+                forKey: "opportunity"
+            )
+        }
+        
+        if let applicationID = event.applicationID {
+            guard let application = try fetchApplicationObject(
+                id: applicationID
+            ) else {
+                throw RepositoryError.applicationNotFound
+            }
+            
+            object.setValue(
+                application,
+                forKey: "application"
+            )
+        }
         
         try saveContext()
     }
     
-    func deleteCalendarEvent(id: UUID) throws {
+    func deleteCalendarEvent(
+        id: UUID
+    ) throws {
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "CalendarEvent"
         )
@@ -421,10 +567,9 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         }
         
         context.delete(object)
-        
         try saveContext()
     }
-
+    
     
     func fetchShareDrafts() throws -> [ShareDraftModel] {
         let request = NSFetchRequest<NSManagedObject>(
@@ -439,7 +584,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         ]
         
         let objects = try context.fetch(request)
-        
         return try objects.map(mapShareDraft)
     }
     
@@ -451,16 +595,26 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             into: context
         )
         
-        object.setValue(draft.id, forKey: "id")
-        object.setValue(draft.title, forKey: "title")
+        object.setValue(
+            draft.id,
+            forKey: "id"
+        )
+        
+        object.setValue(
+            draft.title,
+            forKey: "title"
+        )
+        
         object.setValue(
             draft.url?.absoluteString,
             forKey: "url"
         )
+        
         object.setValue(
             draft.receivedAt,
             forKey: "receivedAt"
         )
+        
         object.setValue(
             draft.processed,
             forKey: "processed"
@@ -487,22 +641,32 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             throw RepositoryError.shareDraftNotFound
         }
         
-        object.setValue(true, forKey: "processed")
+        object.setValue(
+            true,
+            forKey: "processed"
+        )
         
         try saveContext()
     }
-
+    
+    // MARK: - Company Helpers
     
     private func findOrCreateCompany(
         model: CompanyModel
     ) throws -> NSManagedObject {
-        
-        if let existing = try fetchCompanyObject(id: model.id) {
-            existing.setValue(model.name, forKey: "name")
+        if let existing = try fetchCompanyObject(
+            id: model.id
+        ) {
+            existing.setValue(
+                model.name,
+                forKey: "name"
+            )
+            
             existing.setValue(
                 model.websiteURL?.absoluteString,
                 forKey: "websiteURL"
             )
+            
             existing.setValue(
                 model.description,
                 forKey: "companyDescription"
@@ -516,12 +680,21 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
             into: context
         )
         
-        company.setValue(model.id, forKey: "id")
-        company.setValue(model.name, forKey: "name")
+        company.setValue(
+            model.id,
+            forKey: "id"
+        )
+        
+        company.setValue(
+            model.name,
+            forKey: "name"
+        )
+        
         company.setValue(
             model.websiteURL?.absoluteString,
             forKey: "websiteURL"
         )
+        
         company.setValue(
             model.description,
             forKey: "companyDescription"
@@ -533,8 +706,9 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func findOrCreateOpportunity(
         id: UUID
     ) throws -> NSManagedObject {
-        
-        if let existing = try fetchOpportunityObject(id: id) {
+        if let existing = try fetchOpportunityObject(
+            id: id
+        ) {
             return existing
         }
         
@@ -544,10 +718,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         )
     }
     
+    
     private func fetchCompanyObject(
         id: UUID
     ) throws -> NSManagedObject? {
-        
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "Company"
         )
@@ -565,7 +739,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func fetchOpportunityObject(
         id: UUID
     ) throws -> NSManagedObject? {
-        
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "JobOpportunity"
         )
@@ -583,7 +756,6 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func fetchApplicationObject(
         id: UUID
     ) throws -> NSManagedObject? {
-        
         let request = NSFetchRequest<NSManagedObject>(
             entityName: "JobApplication"
         )
@@ -598,20 +770,31 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         return try context.fetch(request).first
     }
     
+    // MARK: - Mapping
+    
     private func mapJobOpportunity(
         _ object: NSManagedObject
     ) throws -> JobOpportunityModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
-            let roleTitle = object.value(forKey: "roleTitle") as? String,
-            let industry = object.value(forKey: "industry") as? String,
-            let companyObject = object.value(forKey: "company") as? NSManagedObject
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
+            let roleTitle = object.value(
+                forKey: "roleTitle"
+            ) as? String,
+            let industry = object.value(
+                forKey: "industry"
+            ) as? String,
+            let companyObject = object.value(
+                forKey: "company"
+            ) as? NSManagedObject
         else {
             throw RepositoryError.invalidStoredOpportunity
         }
         
-        let company = try mapCompany(companyObject)
+        let company = try mapCompany(
+            companyObject
+        )
         
         return JobOpportunityModel(
             id: id,
@@ -647,10 +830,13 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func mapCompany(
         _ object: NSManagedObject
     ) throws -> CompanyModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
-            let name = object.value(forKey: "name") as? String
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
+            let name = object.value(
+                forKey: "name"
+            ) as? String
         else {
             throw RepositoryError.invalidStoredCompany
         }
@@ -672,9 +858,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func mapJobApplication(
         _ object: NSManagedObject
     ) throws -> JobApplicationModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
             let applicationDate = object.value(
                 forKey: "applicationDate"
             ) as? Date,
@@ -716,9 +903,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func mapInterviewQuestion(
         _ object: NSManagedObject
     ) throws -> InterviewQuestionModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
             let question = object.value(
                 forKey: "question"
             ) as? String,
@@ -756,9 +944,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func mapCalendarEvent(
         _ object: NSManagedObject
     ) throws -> CalendarEventModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
             let title = object.value(
                 forKey: "title"
             ) as? String,
@@ -776,12 +965,20 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         }
         
         let opportunityID = (
-            object.value(forKey: "opportunity") as? NSManagedObject
-        )?.value(forKey: "id") as? UUID
+            object.value(
+                forKey: "opportunity"
+            ) as? NSManagedObject
+        )?.value(
+            forKey: "id"
+        ) as? UUID
         
         let applicationID = (
-            object.value(forKey: "application") as? NSManagedObject
-        )?.value(forKey: "id") as? UUID
+            object.value(
+                forKey: "application"
+            ) as? NSManagedObject
+        )?.value(
+            forKey: "id"
+        ) as? UUID
         
         return CalendarEventModel(
             id: id,
@@ -799,9 +996,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
     private func mapShareDraft(
         _ object: NSManagedObject
     ) throws -> ShareDraftModel {
-        
         guard
-            let id = object.value(forKey: "id") as? UUID,
+            let id = object.value(
+                forKey: "id"
+            ) as? UUID,
             let title = object.value(
                 forKey: "title"
             ) as? String,
@@ -827,7 +1025,10 @@ final class CoreDataCareerGridRepository: CareerGridRepository {
         )
     }
     
-    private func url(from string: String?) -> URL? {
+    
+    private func url(
+        from string: String?
+    ) -> URL? {
         guard let string else {
             return nil
         }
@@ -847,7 +1048,6 @@ enum RepositoryError: Error {
     case applicationNotFound
     case calendarEventNotFound
     case shareDraftNotFound
-    
     case invalidStoredCompany
     case invalidStoredOpportunity
     case invalidStoredApplication

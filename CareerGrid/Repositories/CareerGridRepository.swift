@@ -48,6 +48,10 @@ protocol CareerGridRepository {
         _ event: CalendarEventModel
     ) throws
     
+    func deleteInterviewQuestion(
+        id: UUID
+    ) throws
+    
     func updateCalendarEvent(
         _ event: CalendarEventModel
     ) throws
