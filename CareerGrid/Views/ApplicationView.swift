@@ -190,6 +190,8 @@ struct ApplicationView: View {
                             .foregroundStyle(.secondary)
                     }
                     
+                    stageDateSection(application)
+                    
                     notesSection(application)
                     
                     Button(role: .destructive) {
@@ -298,6 +300,91 @@ struct ApplicationView: View {
             where: { $0.id == id }
         ) {
             selectedApplication = updatedApplication
+        }
+    }
+    
+    private func stageDateConfiguration(
+        for stage: ApplicationStage
+    ) -> (title: String, eventType: CalendarEventType)? {
+        switch stage {
+        case .onlineAssessment:
+            return ("OA Date", .onlineAssessment)
+        case .interview:
+            return ("Interview Date", .interview)
+        case .finalInterview:
+            return ("Final Interview Date", .finalInterview)
+        default:
+            return nil
+        }
+    }
+
+    private func stageDateSection(
+        _ application: JobApplicationModel
+    ) -> some View {
+        Group {
+            if let configuration = stageDateConfiguration(
+                for: application.currentStage
+            ) {
+                let event = viewModel.stageDateEvent(
+                    applicationID: application.id,
+                    eventType: configuration.eventType
+                )
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(configuration.title)
+                        .font(.headline)
+
+                    Toggle(
+                        "Add \(configuration.title)",
+                        isOn: Binding(
+                            get: {
+                                viewModel.stageDateEvent(
+                                    applicationID: application.id,
+                                    eventType: configuration.eventType
+                                ) != nil
+                            },
+                            set: { isEnabled in
+                                if isEnabled {
+                                    viewModel.setStageDate(
+                                        applicationID: application.id,
+                                        eventType: configuration.eventType,
+                                        date: Date()
+                                    )
+                                } else {
+                                    viewModel.clearStageDate(
+                                        applicationID: application.id,
+                                        eventType: configuration.eventType
+                                    )
+                                }
+                            }
+                        )
+                    )
+
+                    if let event {
+                        DatePicker(
+                            configuration.title,
+                            selection: Binding(
+                                get: { event.date },
+                                set: { newDate in
+                                    viewModel.setStageDate(
+                                        applicationID: application.id,
+                                        eventType: configuration.eventType,
+                                        date: newDate
+                                    )
+                                }
+                            ),
+                            displayedComponents: [
+                                .date,
+                                .hourAndMinute
+                            ]
+                        )
+                    } else {
+                        Text("Add a date to display this event on your calendar.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
         }
     }
 }
