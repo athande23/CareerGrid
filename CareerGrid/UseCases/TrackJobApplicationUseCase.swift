@@ -45,6 +45,14 @@ struct TrackJobApplicationUseCase {
         )
 
         try repository.createApplication(application)
+
+        do {
+            try SeedInterviewQuestionsUseCase(
+                repository: repository
+            ).execute(for: application)
+        } catch {
+            print("Unable to seed interview questions: \(error)")
+        }
     }
 }
 

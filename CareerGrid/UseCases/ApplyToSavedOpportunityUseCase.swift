@@ -35,6 +35,14 @@ struct ApplyToSavedOpportunityUseCase {
 
         try repository.createApplication(application)
 
+        do {
+            try SeedInterviewQuestionsUseCase(
+                repository: repository
+            ).execute(for: application)
+        } catch {
+            print("Unable to seed interview questions: \(error)")
+        }
+
         var updatedOpportunity = opportunity
         updatedOpportunity.isSaved = false
         try repository.saveOpportunity(updatedOpportunity)
