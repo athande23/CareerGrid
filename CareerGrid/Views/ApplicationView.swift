@@ -81,11 +81,12 @@ struct ApplicationView: View {
                 .buttonStyle(.plain)
             }
             .onDelete { offsets in
-                for offset in offsets {
-                    let application = viewModel.applications[offset]
-                    viewModel.deleteApplication(
-                        id: application.id
-                    )
+                let applicationIDs = offsets.map {
+                    viewModel.applications[$0].id
+                }
+
+                for id in applicationIDs {
+                    viewModel.deleteApplication(id: id)
                 }
             }
         }
@@ -263,27 +264,26 @@ struct ApplicationView: View {
         }
     }
     
+
     private func notesSection(
         _ application: JobApplicationModel
     ) -> some View {
-        VStack(
-            alignment: .leading,
-            spacing: 8
-        ) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("Notes")
                 .font(.headline)
-            
+
             TextField(
                 "Add notes about this application...",
                 text: Binding(
                     get: {
-                        application.notes ?? ""
+                        selectedApplication?.notes ?? application.notes ?? ""
                     },
                     set: { newValue in
                         viewModel.updateNotes(
                             id: application.id,
                             notes: newValue
                         )
+                        refreshSelectedApplication(id: application.id)
                     }
                 ),
                 axis: .vertical

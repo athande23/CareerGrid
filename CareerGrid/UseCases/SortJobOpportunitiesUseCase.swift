@@ -17,12 +17,18 @@ struct SortJobOpportunitiesUseCase {
         opportunities.sorted { first, second in
             switch option {
             case .deadlineAscending:
-                return (first.applicationDeadline ?? .distantFuture)
-                    < (second.applicationDeadline ?? .distantFuture)
+                return compareDeadlines(
+                    first.applicationDeadline,
+                    second.applicationDeadline,
+                    ascending: true
+                )
 
             case .deadlineDescending:
-                return (first.applicationDeadline ?? .distantPast)
-                    > (second.applicationDeadline ?? .distantPast)
+                return compareDeadlines(
+                    first.applicationDeadline,
+                    second.applicationDeadline,
+                    ascending: false
+                )
 
             case .companyName:
                 return first.company.name.localizedCaseInsensitiveCompare(
@@ -34,6 +40,26 @@ struct SortJobOpportunitiesUseCase {
                     second.roleTitle
                 ) == .orderedAscending
             }
+        }
+    }
+
+    private func compareDeadlines(
+        _ first: Date?,
+        _ second: Date?,
+        ascending: Bool
+    ) -> Bool {
+        switch (first, second) {
+        case let (first?, second?):
+            return ascending ? first < second : first > second
+
+        case (_?, nil):
+            return true
+
+        case (nil, _?):
+            return false
+
+        case (nil, nil):
+            return false
         }
     }
 }

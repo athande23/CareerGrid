@@ -8,15 +8,21 @@ struct FilterJobOpportunitiesUseCase {
         industry: String? = nil,
         degreeRequirement: String? = nil
     ) -> [JobOpportunityModel] {
-        opportunities.filter { opportunity in
+        let selectedIndustry = industry?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let selectedDegree = degreeRequirement?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return opportunities.filter { opportunity in
             let matchesIndustry: Bool
 
-            if let industry,
-               !industry.isEmpty,
-               industry != "All" {
+            if let selectedIndustry,
+               !selectedIndustry.isEmpty,
+               selectedIndustry != "All" {
                 matchesIndustry =
                     opportunity.industry.localizedCaseInsensitiveCompare(
-                        industry
+                        selectedIndustry
                     ) == .orderedSame
             } else {
                 matchesIndustry = true
@@ -24,13 +30,16 @@ struct FilterJobOpportunitiesUseCase {
 
             let matchesDegree: Bool
 
-            if let degreeRequirement,
-               !degreeRequirement.isEmpty,
-               degreeRequirement != "All" {
+            if let selectedDegree,
+               !selectedDegree.isEmpty,
+               selectedDegree != "All degrees" {
+                let eligibleDegrees = opportunity.degreeRequirement ?? ""
+
                 matchesDegree =
-                    opportunity.requirements?.localizedCaseInsensitiveContains(
-                        degreeRequirement
-                    ) ?? false
+                    eligibleDegrees.localizedCaseInsensitiveContains("Any degree")
+                    || eligibleDegrees.localizedCaseInsensitiveContains(
+                        selectedDegree
+                    )
             } else {
                 matchesDegree = true
             }

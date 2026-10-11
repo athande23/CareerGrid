@@ -5,7 +5,18 @@ struct ContentView: View {
     private let repository: CareerGridRepository
     
     init() {
-        repository = CoreDataCareerGridRepository()
+        let repository = CoreDataCareerGridRepository()
+        self.repository = repository
+
+        do {
+            try SeedJobOpportunitiesUseCase(
+                repository: repository
+            ).execute(
+                opportunities: CareerGridSeedData.opportunities
+            )
+        } catch {
+            print("CareerGrid seeding failed: \(error)")
+        }
     }
     
     var body: some View {

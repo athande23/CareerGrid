@@ -1,4 +1,3 @@
-
 import Foundation
 
 struct FetchJobOpportunitiesUseCase {
@@ -10,5 +9,9 @@ struct FetchJobOpportunitiesUseCase {
 
     func execute() throws -> [JobOpportunityModel] {
         try repository.fetchAllOpportunities()
+    }
+
+    func executeAvailable() throws -> [JobOpportunityModel] {
+        try repository.fetchAvailableOpportunities()
     }
 }

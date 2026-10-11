@@ -36,6 +36,7 @@
     </entity>
     <entity name="JobOpportunity" representedClassName="JobOpportunity" syncable="YES" codeGenerationType="class">
         <attribute name="applicationDeadline" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="degreeRequirement" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="industry" attributeType="String"/>
         <attribute name="interviewProcess" optional="YES" attributeType="String"/>

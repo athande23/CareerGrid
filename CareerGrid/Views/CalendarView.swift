@@ -1,13 +1,10 @@
 import SwiftUI
 
 struct CalendarView: View {
-    
     @State private var viewModel: CalendarViewModel
-    
     @State private var selectedDate = Date()
-    @State private var showingAddEvent = false
-    @State private var editingEvent: CalendarEventModel?
-    
+    @State private var activeSheet: CalendarSheet?
+
     init(repository: CareerGridRepository) {
         _viewModel = State(
             initialValue: CalendarViewModel(
@@ -15,11 +12,10 @@ struct CalendarView: View {
             )
         )
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                
                 DatePicker(
                     "Select Date",
                     selection: $selectedDate,
@@ -27,56 +23,61 @@ struct CalendarView: View {
                 )
                 .datePickerStyle(.graphical)
                 .padding(.horizontal)
-                
+
                 Divider()
-                
+
                 eventList
             }
             .navigationTitle("Calendar")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingAddEvent = true
+                        activeSheet = .add(selectedDate)
                     } label: {
                         Image(systemName: "plus")
                     }
                     .accessibilityLabel("Add event")
                 }
             }
-            .sheet(isPresented: $showingAddEvent) {
-                CalendarEventFormView(
-                    title: "",
-                    date: selectedDate,
-                    eventType: .custom,
-                    notes: "",
-                    onSave: { title, date, type, notes in
-                        viewModel.addEvent(
-                            title: title,
-                            date: date,
-                            eventType: type,
-                            notes: notes,
-                        )
-                    }
-                )
-            }
-            .sheet(item: $editingEvent) { event in
-                CalendarEventFormView(
-                    title: event.title,
-                    date: event.date,
-                    eventType: event.eventType,
-                    notes: event.notes ?? "",
-                    onSave: { title, date, type, notes in
-                        viewModel.updateEvent(
-                            id: event.id,
-                            title: title,
-                            date: date,
-                            eventType: type,
-                            notes: notes,
-                            opportunityID: event.opportunityID,
-                            applicationID: event.applicationID
-                        )
-                    }
-                )
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .add(let date):
+                    CalendarEventFormView(
+                        title: "",
+                        date: date,
+                        eventType: .custom,
+                        notes: "",
+                        onSave: { title, date, type, notes in
+                            viewModel.addEvent(
+                                title: title,
+                                date: date,
+                                eventType: type,
+                                notes: notes
+                            )
+                            return viewModel.errorMessage == nil
+                        }
+                    )
+
+                case .edit(let event):
+                    CalendarEventFormView(
+                        title: event.title,
+                        date: event.date,
+                        eventType: event.eventType,
+                        notes: event.notes ?? "",
+                        onSave: { title, date, type, notes in
+                            viewModel.updateEvent(
+                                id: event.id,
+                                title: title,
+                                date: date,
+                                eventType: type,
+                                notes: notes,
+                                opportunityID: event.opportunityID,
+                                applicationID: event.applicationID
+                            )
+                            return viewModel.errorMessage == nil
+                        }
+                    )
+                }
             }
             .alert(
                 "Calendar Error",
@@ -84,8 +85,8 @@ struct CalendarView: View {
                     get: {
                         viewModel.errorMessage != nil
                     },
-                    set: { value in
-                        if !value {
+                    set: { isPresented in
+                        if !isPresented {
                             viewModel.errorMessage = nil
                         }
                     }
@@ -102,36 +103,68 @@ struct CalendarView: View {
             }
         }
     }
-    
+
     private var eventList: some View {
-        let selectedEvents = eventsForSelectedDate()
-        
-        return Group {
-            if selectedEvents.isEmpty {
+        Group {
+            if viewModel.isLoading {
+                ProgressView("Loading events...")
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity
+                    )
+            } else if let error = viewModel.errorMessage,
+                      viewModel.events.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.secondary)
+
+                    Text("Unable to load events")
+                        .font(.headline)
+
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button("Try Again") {
+                        viewModel.loadEvents()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity
+                )
+                .padding()
+            } else if eventsForSelectedDate().isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "calendar")
                         .font(.system(size: 36))
                         .foregroundStyle(.secondary)
-                    
+
                     Text("No events")
                         .font(.headline)
-                    
+
                     Text("There are no events scheduled for this date.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    
+
                     Button("Add Event") {
-                        showingAddEvent = true
+                        activeSheet = .add(selectedDate)
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity
+                )
                 .padding()
             } else {
                 List {
                     Section {
-                        ForEach(selectedEvents) { event in
+                        ForEach(eventsForSelectedDate()) { event in
                             eventRow(event)
                         }
                     } header: {
@@ -149,42 +182,42 @@ struct CalendarView: View {
             }
         }
     }
-    
+
     private func eventsForSelectedDate() -> [CalendarEventModel] {
         let calendar = Calendar.current
-        
-        return viewModel.events.filter { event in
-            calendar.isDate(
-                event.date,
-                inSameDayAs: selectedDate
-            )
-        }
+
+        return viewModel.events
+            .filter { event in
+                calendar.isDate(
+                    event.date,
+                    inSameDayAs: selectedDate
+                )
+            }
+            .sorted { $0.date < $1.date }
     }
-    
+
     private func eventRow(
         _ event: CalendarEventModel
     ) -> some View {
         Button {
-            editingEvent = event
+            activeSheet = .edit(event)
         } label: {
             HStack(spacing: 14) {
                 Image(
-                    systemName: iconName(
-                        for: event.eventType
-                    )
+                    systemName: iconName(for: event.eventType)
                 )
                 .font(.title3)
                 .frame(width: 32)
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(event.title)
                         .font(.headline)
                         .foregroundStyle(.primary)
-                    
+
                     Text(event.eventType.displayName)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    
+
                     Text(
                         event.date.formatted(
                             date: .omitted,
@@ -193,7 +226,7 @@ struct CalendarView: View {
                     )
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    
+
                     if let notes = event.notes,
                        !notes.isEmpty {
                         Text(notes)
@@ -202,28 +235,25 @@ struct CalendarView: View {
                             .lineLimit(2)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
-                viewModel.deleteEvent(
-                    id: event.id
-                )
+                viewModel.deleteEvent(id: event.id)
             } label: {
-                Label(
-                    "Delete",
-                    systemImage: "trash"
-                )
+                Label("Delete", systemImage: "trash")
             }
         }
     }
-    
+
     private func iconName(
         for eventType: CalendarEventType
     ) -> String {
@@ -244,22 +274,37 @@ struct CalendarView: View {
     }
 }
 
+private enum CalendarSheet: Identifiable {
+    case add(Date)
+    case edit(CalendarEventModel)
+
+    var id: String {
+        switch self {
+        case .add:
+            return "add"
+        case .edit(let event):
+            return "edit-\(event.id.uuidString)"
+        }
+    }
+}
+
 private struct CalendarEventFormView: View {
-    
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var title: String
     @State private var date: Date
     @State private var eventType: CalendarEventType
     @State private var notes: String
-    
+
+    @State private var isSaving = false
+
     let onSave: (
         String,
         Date,
         CalendarEventType,
         String?
-    ) -> Void
-    
+    ) -> Bool
+
     init(
         title: String,
         date: Date,
@@ -270,7 +315,7 @@ private struct CalendarEventFormView: View {
             Date,
             CalendarEventType,
             String?
-        ) -> Void
+        ) -> Bool
     ) {
         _title = State(initialValue: title)
         _date = State(initialValue: date)
@@ -278,16 +323,13 @@ private struct CalendarEventFormView: View {
         _notes = State(initialValue: notes)
         self.onSave = onSave
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Event") {
-                    TextField(
-                        "Title",
-                        text: $title
-                    )
-                    
+                    TextField("Title", text: $title)
+
                     DatePicker(
                         "Date",
                         selection: $date,
@@ -296,11 +338,8 @@ private struct CalendarEventFormView: View {
                             .hourAndMinute
                         ]
                     )
-                    
-                    Picker(
-                        "Type",
-                        selection: $eventType
-                    ) {
+
+                    Picker("Type", selection: $eventType) {
                         ForEach(
                             CalendarEventType.allCases,
                             id: \.self
@@ -310,7 +349,7 @@ private struct CalendarEventFormView: View {
                         }
                     }
                 }
-                
+
                 Section("Notes") {
                     TextField(
                         "Notes",
@@ -323,36 +362,45 @@ private struct CalendarEventFormView: View {
             .navigationTitle("Calendar Event")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(
-                    placement: .topBarLeading
-                ) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .disabled(isSaving)
                 }
-                
-                ToolbarItem(
-                    placement: .topBarTrailing
-                ) {
+
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        onSave(
-                            title,
-                            date,
-                            eventType,
-                            notes.nilIfBlank
-                        )
-                        
-                        dismiss()
+                        saveEvent()
                     }
                     .disabled(
-                        title
-                            .trimmingCharacters(
-                                in: .whitespacesAndNewlines
-                            )
-                            .isEmpty
+                        title.trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        ).isEmpty || isSaving
                     )
                 }
             }
+        }
+    }
+
+    private func saveEvent() {
+        guard !isSaving else {
+            return
+        }
+
+        isSaving = true
+
+        let didSave = onSave(
+            title,
+            date,
+            eventType,
+            notes.nilIfBlank
+        )
+
+        isSaving = false
+
+        if didSave {
+            dismiss()
         }
     }
 }
@@ -362,7 +410,7 @@ private extension String {
         let trimmed = trimmingCharacters(
             in: .whitespacesAndNewlines
         )
-        
+
         return trimmed.isEmpty ? nil : trimmed
     }
 }

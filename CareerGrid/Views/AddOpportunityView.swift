@@ -1,9 +1,9 @@
+
 import SwiftUI
 
 struct AddOpportunityView: View {
-    
     @Environment(\.dismiss) private var dismiss
-    
+
     let onSave: (
         String,
         String,
@@ -13,54 +13,54 @@ struct AddOpportunityView: View {
         String?,
         String?,
         URL?,
-        Date?
+        Date?,
+        String?
     ) -> Void
-    
+
     @State private var roleTitle = ""
     @State private var companyName = ""
     @State private var industry = ""
     @State private var location = ""
+    @State private var degreeRequirement = ""
     @State private var description = ""
     @State private var requirements = ""
     @State private var interviewProcess = ""
     @State private var sourceURL = ""
-    
     @State private var hasDeadline = false
     @State private var applicationDeadline = Date()
-    
+
     var body: some View {
         NavigationStack {
             Form {
-                
                 Section("Job Details") {
                     TextField("Role Title", text: $roleTitle)
-                    
                     TextField("Company", text: $companyName)
-                    
                     TextField("Industry", text: $industry)
-                    
                     TextField("Location", text: $location)
+                    TextField(
+                        "Degree Requirement (e.g. Computer Science)",
+                        text: $degreeRequirement
+                    )
                 }
-                
+
                 Section("Application") {
                     Toggle("Application Deadline", isOn: $hasDeadline)
-                    
+
                     if hasDeadline {
                         DatePicker(
                             "Deadline",
                             selection: $applicationDeadline,
+                            in: Date.now...,
                             displayedComponents: .date
                         )
                     }
-                    
-                    TextField(
-                        "Source URL",
-                        text: $sourceURL
-                    )
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
+
+                    TextField("Source URL", text: $sourceURL)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                 }
-                
+
                 Section("Job Information") {
                     TextField(
                         "Description",
@@ -68,14 +68,14 @@ struct AddOpportunityView: View {
                         axis: .vertical
                     )
                     .lineLimit(3...6)
-                    
+
                     TextField(
                         "Requirements",
                         text: $requirements,
                         axis: .vertical
                     )
                     .lineLimit(3...6)
-                    
+
                     TextField(
                         "Interview Process",
                         text: $interviewProcess,
@@ -92,7 +92,7 @@ struct AddOpportunityView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         saveOpportunity()
@@ -112,24 +112,46 @@ struct AddOpportunityView: View {
             }
         }
     }
-    
+
     private func saveOpportunity() {
-        let url = URL(string: sourceURL.trimmingCharacters(
+        let trimmedURL = sourceURL.trimmingCharacters(
             in: .whitespacesAndNewlines
-        ))
-        
+        )
+
+        let url: URL?
+
+        if trimmedURL.isEmpty {
+            url = nil
+        } else if let candidate = URL(string: trimmedURL),
+                  let scheme = candidate.scheme?.lowercased(),
+                  ["http", "https"].contains(scheme),
+                  candidate.host != nil {
+            url = candidate
+        } else {
+            return
+        }
+
+        let trimmedLocation = location.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        let trimmedDegree = degreeRequirement.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
         onSave(
             roleTitle,
             companyName,
             industry,
-            location,
+            trimmedLocation.isEmpty ? nil : trimmedLocation,
             description,
             requirements,
             interviewProcess,
             url,
-            hasDeadline ? applicationDeadline : nil
+            hasDeadline ? applicationDeadline : nil,
+            trimmedDegree.isEmpty ? nil : trimmedDegree
         )
-        
+
         dismiss()
     }
 }
