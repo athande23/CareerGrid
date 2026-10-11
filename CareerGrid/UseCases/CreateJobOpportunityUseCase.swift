@@ -41,9 +41,16 @@ struct CreateJobOpportunityUseCase {
             throw CreateJobOpportunityError.emptyIndustry
         }
 
-        let now = Date()
-        if let applicationDeadline, applicationDeadline < now {
-            throw CreateJobOpportunityError.deadlineInPast
+        if let applicationDeadline {
+            let calendar = Calendar.current
+            let deadlineDay = calendar.startOfDay(
+                for: applicationDeadline
+            )
+            let today = calendar.startOfDay(for: Date())
+
+            guard deadlineDay >= today else {
+                throw CreateJobOpportunityError.deadlineInPast
+            }
         }
 
         let company = CompanyModel(name: trimmedCompanyName)

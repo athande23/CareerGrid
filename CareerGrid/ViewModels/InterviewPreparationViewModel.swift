@@ -99,7 +99,6 @@ final class InterviewPreparationViewModel {
 
             loadInterviewQuestions(for: application.id)
 
-            // Keep the sheet open if refreshing the questions failed.
             guard errorMessage == nil else {
                 return false
             }

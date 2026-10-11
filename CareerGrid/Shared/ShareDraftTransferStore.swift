@@ -3,27 +3,49 @@ import Foundation
 
 struct ShareDraftTransfer: Codable, Identifiable {
     let id: UUID
-    var title: String
+    var roleTitle: String
+    var companyName: String
+    var industry: String
+    var location: String?
+    var description: String?
+    var requirements: String?
+    var interviewProcess: String?
     var urlString: String?
+    var applicationDeadline: Date?
+    var degreeRequirement: String?
     var receivedAt: Date
 
     init(
         id: UUID = UUID(),
-        title: String,
+        roleTitle: String,
+        companyName: String,
+        industry: String,
+        location: String? = nil,
+        description: String? = nil,
+        requirements: String? = nil,
+        interviewProcess: String? = nil,
         urlString: String? = nil,
+        applicationDeadline: Date? = nil,
+        degreeRequirement: String? = nil,
         receivedAt: Date = Date()
     ) {
         self.id = id
-        self.title = title
+        self.roleTitle = roleTitle
+        self.companyName = companyName
+        self.industry = industry
+        self.location = location
+        self.description = description
+        self.requirements = requirements
+        self.interviewProcess = interviewProcess
         self.urlString = urlString
+        self.applicationDeadline = applicationDeadline
+        self.degreeRequirement = degreeRequirement
         self.receivedAt = receivedAt
     }
 }
 
 enum ShareDraftTransferStore {
-
     static let appGroupIdentifier = "group.com.example.CareerGrid"
-
     private static let storageKey = "careerGrid.pendingShareDrafts"
 
     static func fetchAll() throws -> [ShareDraftTransfer] {

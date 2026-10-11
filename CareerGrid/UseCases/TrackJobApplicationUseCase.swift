@@ -24,15 +24,19 @@ struct TrackJobApplicationUseCase {
             throw TrackJobApplicationError.invalidOpportunity
         }
 
-        let now = Date()
-        guard applicationDate <= now else {
+        guard opportunity.isSaved else {
+            throw TrackJobApplicationError.opportunityNotSaved
+        }
+
+        guard applicationDate <= Date() else {
             throw TrackJobApplicationError.applicationDateInFuture
         }
 
         let applications = try repository.fetchApplications()
 
         let alreadyApplied = applications.contains {
-            $0.opportunity.id == opportunityID && $0.status == .active
+            $0.opportunity.id == opportunityID &&
+            $0.status == .active
         }
 
         guard !alreadyApplied else {
@@ -51,7 +55,9 @@ struct TrackJobApplicationUseCase {
                 repository: repository
             ).execute(for: application)
         } catch {
-            print("Unable to seed interview questions: \(error)")
+            print(
+                "CareerGrid: Unable to seed interview questions: \(error)"
+            )
         }
     }
 }
@@ -59,6 +65,7 @@ struct TrackJobApplicationUseCase {
 enum TrackJobApplicationError: Error, Equatable {
     case opportunityNotFound
     case invalidOpportunity
+    case opportunityNotSaved
     case applicationDateInFuture
     case alreadyApplied
 }

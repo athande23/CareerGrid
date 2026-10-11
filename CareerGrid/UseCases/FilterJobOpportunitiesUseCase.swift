@@ -2,7 +2,6 @@
 import Foundation
 
 struct FilterJobOpportunitiesUseCase {
-
     func execute(
         opportunities: [JobOpportunityModel],
         industry: String? = nil,
@@ -20,26 +19,35 @@ struct FilterJobOpportunitiesUseCase {
             if let selectedIndustry,
                !selectedIndustry.isEmpty,
                selectedIndustry != "All" {
-                matchesIndustry =
-                    opportunity.industry.localizedCaseInsensitiveCompare(
-                        selectedIndustry
-                    ) == .orderedSame
+                matchesIndustry = opportunity.industry
+                    .localizedCaseInsensitiveCompare(selectedIndustry) == .orderedSame
             } else {
                 matchesIndustry = true
             }
+
+            let eligibleDegrees = opportunity.degreeRequirement?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
             let matchesDegree: Bool
 
             if let selectedDegree,
                !selectedDegree.isEmpty,
                selectedDegree != "All degrees" {
-                let eligibleDegrees = opportunity.degreeRequirement ?? ""
-
-                matchesDegree =
+                let acceptsAnyDegree =
                     eligibleDegrees.localizedCaseInsensitiveContains("Any degree")
-                    || eligibleDegrees.localizedCaseInsensitiveContains(
-                        selectedDegree
-                    )
+
+                let degreeList = eligibleDegrees
+                    .split(separator: ",")
+                    .map {
+                        $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+
+                let matchesSpecificDegree = degreeList.contains {
+                    $0.localizedCaseInsensitiveContains(selectedDegree)
+                        || selectedDegree.localizedCaseInsensitiveContains($0)
+                }
+
+                matchesDegree = acceptsAnyDegree || matchesSpecificDegree
             } else {
                 matchesDegree = true
             }

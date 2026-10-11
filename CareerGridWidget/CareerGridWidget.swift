@@ -1,88 +1,144 @@
-//
-//  CareerGridWidget.swift
-//  CareerGridWidget
-//
-//  Created by Aaditya Thande on 11/10/2026.
-//
 
 import WidgetKit
 import SwiftUI
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
-    }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
-
-struct SimpleEntry: TimelineEntry {
+struct CareerGridWidgetEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let snapshot: WidgetSnapshot?
 }
 
-struct CareerGridWidgetEntryView : View {
-    var entry: Provider.Entry
+struct CareerGridWidgetProvider: TimelineProvider {
+
+    func placeholder(in context: Context) -> CareerGridWidgetEntry {
+        CareerGridWidgetEntry(
+            date: Date(),
+            snapshot: WidgetSnapshot(
+                nextDeadline: WidgetDeadline(
+                    roleTitle: "Graduate Software Engineer",
+                    companyName: "Example Company",
+                    deadline: Calendar.current.date(
+                        byAdding: .day,
+                        value: 7,
+                        to: Date()
+                    )!
+                ),
+                updatedAt: Date()
+            )
+        )
+    }
+
+    func getSnapshot(
+        in context: Context,
+        completion: @escaping (CareerGridWidgetEntry) -> Void
+    ) {
+        completion(
+            CareerGridWidgetEntry(
+                date: Date(),
+                snapshot: WidgetDataProvider.load()
+            )
+        )
+    }
+
+    func getTimeline(
+        in context: Context,
+        completion: @escaping (Timeline<CareerGridWidgetEntry>) -> Void
+    ) {
+        let entry = CareerGridWidgetEntry(
+            date: Date(),
+            snapshot: WidgetDataProvider.load()
+        )
+
+        let nextUpdate = Calendar.current.date(
+            byAdding: .hour,
+            value: 1,
+            to: Date()
+        )!
+
+        completion(
+            Timeline(
+                entries: [entry],
+                policy: .after(nextUpdate)
+            )
+        )
+    }
+}
+
+struct CareerGridWidgetEntryView: View {
+    let entry: CareerGridWidgetEntry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        VStack(alignment: .leading, spacing: 8) {
+            Label("NEXT DEADLINE", systemImage: "calendar")
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.secondary)
 
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+            if let item = entry.snapshot?.nextDeadline {
+                Text(item.roleTitle)
+                    .font(.headline)
+                    .lineLimit(2)
+
+                Text(item.companyName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Spacer(minLength: 0)
+
+                Text(item.deadline, format: .dateTime.day().month(.abbreviated).year())
+                    .font(.subheadline.weight(.semibold))
+
+                let daysRemaining = max(
+                    0,
+                    Calendar.current.dateComponents(
+                        [.day],
+                        from: Calendar.current.startOfDay(for: entry.date),
+                        to: Calendar.current.startOfDay(for: item.deadline)
+                    ).day ?? 0
+                )
+
+                Text(daysRemaining == 0 ? "Due today" : "\(daysRemaining) days remaining")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+            } else {
+                Spacer(minLength: 0)
+
+                Text("No upcoming deadlines")
+                    .font(.headline)
+
+                Text("Add a deadline to an opportunity in CareerGrid.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer(minLength: 0)
+            }
         }
+        .padding()
+        .containerBackground(.fill.tertiary, for: .widget)
     }
 }
 
 struct CareerGridWidget: Widget {
-    let kind: String = "CareerGridWidget"
+    let kind = "CareerGridWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(
+            kind: kind,
+            provider: CareerGridWidgetProvider()
+        ) { entry in
             CareerGridWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
         }
-    }
-}
-
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
+        .configurationDisplayName("CareerGrid Deadlines")
+        .description("Keep track of your next job application deadline.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
 #Preview(as: .systemSmall) {
     CareerGridWidget()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+    CareerGridWidgetEntry(
+        date: .now,
+        snapshot: nil
+    )
 }

@@ -4,43 +4,129 @@ import Observation
 
 @Observable
 final class HomeViewModel {
-
     private let saveJobOpportunityUseCase: SaveJobOpportunityUseCase
     private let trackJobApplicationUseCase: TrackJobApplicationUseCase
     private let createJobOpportunityUseCase: CreateJobOpportunityUseCase
     private let fetchJobOpportunitiesUseCase: FetchJobOpportunitiesUseCase
+    private let filterJobOpportunitiesUseCase: FilterJobOpportunitiesUseCase
+    private let sortJobOpportunitiesUseCase: SortJobOpportunitiesUseCase
+    private let repository: CareerGridRepository
 
     var opportunities: [JobOpportunityModel] = []
     var errorMessage: String?
     var isLoading = false
 
+    var searchText = ""
+    var selectedIndustry = "All"
+    var selectedDegree = "All degrees"
+    var selectedSortOption = JobOpportunitySortOption.deadlineAscending
+
     init(repository: CareerGridRepository) {
-        self.saveJobOpportunityUseCase = SaveJobOpportunityUseCase(
+        self.repository = repository
+
+        saveJobOpportunityUseCase = SaveJobOpportunityUseCase(
             repository: repository
         )
-        self.trackJobApplicationUseCase = TrackJobApplicationUseCase(
+
+        trackJobApplicationUseCase = TrackJobApplicationUseCase(
             repository: repository
         )
-        self.createJobOpportunityUseCase = CreateJobOpportunityUseCase(
+
+        createJobOpportunityUseCase = CreateJobOpportunityUseCase(
             repository: repository
         )
-        self.fetchJobOpportunitiesUseCase = FetchJobOpportunitiesUseCase(
+
+        fetchJobOpportunitiesUseCase = FetchJobOpportunitiesUseCase(
             repository: repository
+        )
+
+        filterJobOpportunitiesUseCase = FilterJobOpportunitiesUseCase()
+        sortJobOpportunitiesUseCase = SortJobOpportunitiesUseCase()
+    }
+
+    var industries: [String] {
+        let values = Set(
+            opportunities.map {
+                $0.industry.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+            }
+            .filter { !$0.isEmpty }
+        )
+
+        return ["All"] + values.sorted {
+            $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
+        }
+    }
+
+    var degreeOptions: [String] {
+        [
+            "All degrees",
+            "Computer Science",
+            "Software Engineering",
+            "Information Technology",
+            "Data Science",
+            "Engineering",
+            "Business & Commerce",
+            "Finance",
+            "Economics",
+            "Accounting",
+            "Marketing & Communications",
+            "Science",
+            "Law & Policy",
+            "Arts & Humanities",
+            "Human Resources",
+            "Psychology"
+        ]
+    }
+
+    var filteredOpportunities: [JobOpportunityModel] {
+        let filtered = filterJobOpportunitiesUseCase.execute(
+            opportunities: opportunities,
+            industry: selectedIndustry,
+            degreeRequirement: selectedDegree
+        )
+
+        let query = searchText.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        let searched = filtered.filter { opportunity in
+            guard !query.isEmpty else { return true }
+
+            let searchableValues = [
+                opportunity.roleTitle,
+                opportunity.company.name,
+                opportunity.industry,
+                opportunity.location ?? "",
+                opportunity.degreeRequirement ?? "",
+                opportunity.description ?? ""
+            ]
+
+            return searchableValues.contains {
+                $0.localizedCaseInsensitiveContains(query)
+            }
+        }
+
+        return sortJobOpportunitiesUseCase.execute(
+            opportunities: searched,
+            by: selectedSortOption
         )
     }
 
     func loadOpportunities() {
         isLoading = true
-        errorMessage = nil
-
-        defer {
-            isLoading = false
-        }
+        defer { isLoading = false }
 
         do {
             opportunities = try fetchJobOpportunitiesUseCase.executeAvailable()
+
+            if !industries.contains(selectedIndustry) {
+                selectedIndustry = "All"
+            }
         } catch {
-            errorMessage = "Unable to load job opportunities."
+            print("CareerGrid: Failed to load opportunities: \(error)")
+            errorMessage = "The opportunity was saved, but the Home list could not be refreshed."
         }
     }
 
@@ -53,9 +139,11 @@ final class HomeViewModel {
             )
             loadOpportunities()
         } catch {
+            print("CareerGrid: Failed to save opportunity: \(error)")
             errorMessage = "Unable to save this opportunity."
         }
     }
+
 
     func applyToOpportunity(id: UUID) {
         errorMessage = nil
@@ -65,11 +153,35 @@ final class HomeViewModel {
                 opportunityID: id
             )
             loadOpportunities()
+        } catch let error as TrackJobApplicationError {
+            switch error {
+            case .opportunityNotFound:
+                errorMessage =
+                    "This job could not be found. Refresh the list and try again."
+
+            case .invalidOpportunity:
+                errorMessage =
+                    "This job has incomplete information and cannot be applied to."
+
+            case .opportunityNotSaved:
+                errorMessage =
+                    "Save this job before applying for it."
+
+            case .applicationDateInFuture:
+                errorMessage =
+                    "The application date cannot be in the future."
+
+            case .alreadyApplied:
+                errorMessage =
+                    "You have already applied for this job. Check your Applications list."
+            }
         } catch {
-            errorMessage = "Unable to apply for this opportunity."
+            print("CareerGrid: Failed to apply to opportunity: \(error)")
+            errorMessage =
+                "Unable to apply for this job. Please try again."
         }
     }
-
+    
     func addOpportunity(
         roleTitle: String,
         companyName: String,
@@ -99,6 +211,10 @@ final class HomeViewModel {
             )
 
             loadOpportunities()
+            WidgetSnapshotRefresher(
+                repository: repository
+            ).refresh()
+            
         } catch let error as CreateJobOpportunityError {
             switch error {
             case .emptyRoleTitle:
@@ -108,10 +224,11 @@ final class HomeViewModel {
             case .emptyIndustry:
                 errorMessage = "Enter an industry."
             case .deadlineInPast:
-                errorMessage = "The application deadline cannot be in the past."
+                errorMessage = "The application deadline must be today or later."
             }
         } catch {
-            errorMessage = "Unable to create this job opportunity."
+            print("CareerGrid: Failed to create opportunity: \(error)")
+            errorMessage = "Unable to create this job opportunity. Check the Xcode console for details."
         }
     }
 }

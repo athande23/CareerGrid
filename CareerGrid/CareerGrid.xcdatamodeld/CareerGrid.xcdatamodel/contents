@@ -14,7 +14,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="websiteURL" optional="YES" attributeType="String"/>
-        <relationship name="opportunities" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobOpportunity" inverseName="company" inverseEntity="JobOpportunity"/>
+        <relationship name="opportunities" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JobOpportunity" inverseName="company" inverseEntity="JobOpportunity"/>
     </entity>
     <entity name="InterviewQuestion" representedClassName="InterviewQuestion" syncable="YES" codeGenerationType="class">
         <attribute name="category" attributeType="String"/>
@@ -30,7 +30,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="status" attributeType="String"/>
-        <relationship name="calendarEvents" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CalendarEvent" inverseName="application" inverseEntity="CalendarEvent"/>
+        <relationship name="calendarEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CalendarEvent" inverseName="application" inverseEntity="CalendarEvent"/>
         <relationship name="interviewQuestions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="InterviewQuestion" inverseName="application" inverseEntity="InterviewQuestion"/>
         <relationship name="opportunity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobOpportunity" inverseName="applications" inverseEntity="JobOpportunity"/>
     </entity>
@@ -46,14 +46,15 @@
         <attribute name="requirements" optional="YES" attributeType="String"/>
         <attribute name="roleTitle" attributeType="String"/>
         <attribute name="sourceURL" optional="YES" attributeType="String"/>
-        <relationship name="applications" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobApplication" inverseName="opportunity" inverseEntity="JobApplication"/>
-        <relationship name="calendarEvents" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CalendarEvent" inverseName="opportunity" inverseEntity="CalendarEvent"/>
+        <relationship name="applications" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JobApplication" inverseName="opportunity" inverseEntity="JobApplication"/>
+        <relationship name="calendarEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CalendarEvent" inverseName="opportunity" inverseEntity="CalendarEvent"/>
         <relationship name="company" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Company" inverseName="opportunities" inverseEntity="Company"/>
+        <relationship name="opportunity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JobOpportunity" inverseName="opportunity" inverseEntity="JobOpportunity"/>
     </entity>
     <entity name="ShareDraft" representedClassName="ShareDraft" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="processed" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="recievedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="receivedAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="url" optional="YES" attributeType="String"/>
     </entity>

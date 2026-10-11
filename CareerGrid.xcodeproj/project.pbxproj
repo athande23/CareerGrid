@@ -6,7 +6,29 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6349A7B1307B43DA00184CDB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6349A7B0307B43DA00184CDB /* WidgetKit.framework */; };
+		6349A7B3307B43DA00184CDB /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6349A7B2307B43DA00184CDB /* SwiftUI.framework */; };
+		6349A7C4307B43DE00184CDB /* CareerGridWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6349A7AE307B43DA00184CDB /* CareerGridWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6349A7DC307B536D00184CDB /* CareerGridShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6349A7D2307B536D00184CDB /* CareerGridShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6349A7EF307C456300184CDB /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6349A7EE307C455E00184CDB /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		6349A7C2307B43DE00184CDB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 63DD852730757FD0005461FD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6349A7AD307B43DA00184CDB;
+			remoteInfo = CareerGridWidgetExtension;
+		};
+		6349A7DA307B536D00184CDB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 63DD852730757FD0005461FD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6349A7D1307B536D00184CDB;
+			remoteInfo = CareerGridShareExtension;
+		};
 		63DD853D30757FD3005461FD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 63DD852730757FD0005461FD /* Project object */;
@@ -23,15 +45,85 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		6349A7C9307B43DE00184CDB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				6349A7DC307B536D00184CDB /* CareerGridShareExtension.appex in Embed Foundation Extensions */,
+				6349A7C4307B43DE00184CDB /* CareerGridWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		6349A7AE307B43DA00184CDB /* CareerGridWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CareerGridWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6349A7B0307B43DA00184CDB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		6349A7B2307B43DA00184CDB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		6349A7CB307B447900184CDB /* CareerGridWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CareerGridWidgetExtension.entitlements; sourceTree = "<group>"; };
+		6349A7D2307B536D00184CDB /* CareerGridShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CareerGridShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6349A7EE307C455E00184CDB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		63DD852F30757FD0005461FD /* CareerGrid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerGrid.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63DD853C30757FD3005461FD /* CareerGridTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerGridTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63DD854630757FD3005461FD /* CareerGridUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerGridUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6349A7C5307B43DE00184CDB /* Exceptions for "CareerGridWidget" folder in "CareerGridWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6349A7AD307B43DA00184CDB /* CareerGridWidgetExtension */;
+		};
+		6349A7CD307B47A200184CDB /* Exceptions for "CareerGrid" folder in "CareerGridWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Shared/WidgetDataProvider.swift,
+			);
+			target = 6349A7AD307B43DA00184CDB /* CareerGridWidgetExtension */;
+		};
+		6349A7DD307B536D00184CDB /* Exceptions for "CareerGridShareExtension" folder in "CareerGridShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6349A7D1307B536D00184CDB /* CareerGridShareExtension */;
+		};
+		6349A7EA307B554E00184CDB /* Exceptions for "CareerGrid" folder in "CareerGridShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Shared/ShareDraftTransferStore.swift,
+			);
+			target = 6349A7D1307B536D00184CDB /* CareerGridShareExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6349A7B4307B43DA00184CDB /* CareerGridWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6349A7C5307B43DE00184CDB /* Exceptions for "CareerGridWidget" folder in "CareerGridWidgetExtension" target */,
+			);
+			path = CareerGridWidget;
+			sourceTree = "<group>";
+		};
+		6349A7D3307B536D00184CDB /* CareerGridShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6349A7DD307B536D00184CDB /* Exceptions for "CareerGridShareExtension" folder in "CareerGridShareExtension" target */,
+			);
+			path = CareerGridShareExtension;
+			sourceTree = "<group>";
+		};
 		63DD853130757FD0005461FD /* CareerGrid */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6349A7CD307B47A200184CDB /* Exceptions for "CareerGrid" folder in "CareerGridWidgetExtension" target */,
+				6349A7EA307B554E00184CDB /* Exceptions for "CareerGrid" folder in "CareerGridShareExtension" target */,
+			);
 			path = CareerGrid;
 			sourceTree = "<group>";
 		};
@@ -48,6 +140,18 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6349A7AB307B43DA00184CDB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				6349A7B3307B43DA00184CDB /* SwiftUI.framework in Frameworks */,
+				6349A7B1307B43DA00184CDB /* WidgetKit.framework in Frameworks */,
+			);
+		};
+		6349A7CF307B536D00184CDB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		63DD852C30757FD0005461FD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -66,12 +170,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6349A7AF307B43DA00184CDB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6349A7B0307B43DA00184CDB /* WidgetKit.framework */,
+				6349A7B2307B43DA00184CDB /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		63DD852630757FCF005461FD = {
 			isa = PBXGroup;
 			children = (
+				6349A7EE307C455E00184CDB /* .gitignore */,
+				6349A7CB307B447900184CDB /* CareerGridWidgetExtension.entitlements */,
 				63DD853130757FD0005461FD /* CareerGrid */,
 				63DD853F30757FD3005461FD /* CareerGridTests */,
 				63DD854930757FD3005461FD /* CareerGridUITests */,
+				6349A7B4307B43DA00184CDB /* CareerGridWidget */,
+				6349A7D3307B536D00184CDB /* CareerGridShareExtension */,
+				6349A7AF307B43DA00184CDB /* Frameworks */,
 				63DD853030757FD0005461FD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,6 +200,8 @@
 				63DD852F30757FD0005461FD /* CareerGrid.app */,
 				63DD853C30757FD3005461FD /* CareerGridTests.xctest */,
 				63DD854630757FD3005461FD /* CareerGridUITests.xctest */,
+				6349A7AE307B43DA00184CDB /* CareerGridWidgetExtension.appex */,
+				6349A7D2307B536D00184CDB /* CareerGridShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +209,42 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6349A7AD307B43DA00184CDB /* CareerGridWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6349A7C6307B43DE00184CDB /* Build configuration list for PBXNativeTarget "CareerGridWidgetExtension" */;
+			buildPhases = (
+				6349A7AA307B43DA00184CDB /* Sources */,
+				6349A7AB307B43DA00184CDB /* Frameworks */,
+				6349A7AC307B43DA00184CDB /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				6349A7B4307B43DA00184CDB /* CareerGridWidget */,
+			);
+			name = CareerGridWidgetExtension;
+			productName = CareerGridWidgetExtension;
+			productReference = 6349A7AE307B43DA00184CDB /* CareerGridWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		6349A7D1307B536D00184CDB /* CareerGridShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6349A7DE307B536D00184CDB /* Build configuration list for PBXNativeTarget "CareerGridShareExtension" */;
+			buildPhases = (
+				6349A7CE307B536D00184CDB /* Sources */,
+				6349A7CF307B536D00184CDB /* Frameworks */,
+				6349A7D0307B536D00184CDB /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				6349A7D3307B536D00184CDB /* CareerGridShareExtension */,
+			);
+			name = CareerGridShareExtension;
+			productName = CareerGridShareExtension;
+			productReference = 6349A7D2307B536D00184CDB /* CareerGridShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		63DD852E30757FD0005461FD /* CareerGrid */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63DD854E30757FD3005461FD /* Build configuration list for PBXNativeTarget "CareerGrid" */;
@@ -96,8 +252,13 @@
 				63DD852B30757FD0005461FD /* Sources */,
 				63DD852C30757FD0005461FD /* Frameworks */,
 				63DD852D30757FD0005461FD /* Resources */,
+				6349A7C9307B43DE00184CDB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
+			);
+			dependencies = (
+				6349A7C3307B43DE00184CDB /* PBXTargetDependency */,
+				6349A7DB307B536D00184CDB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				63DD853130757FD0005461FD /* CareerGrid */,
@@ -159,6 +320,12 @@
 				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
+					6349A7AD307B43DA00184CDB = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					6349A7D1307B536D00184CDB = {
+						CreatedOnToolsVersion = 27.0;
+					};
 					63DD852E30757FD0005461FD = {
 						CreatedOnToolsVersion = 27.0;
 					};
@@ -189,14 +356,27 @@
 				63DD852E30757FD0005461FD /* CareerGrid */,
 				63DD853B30757FD3005461FD /* CareerGridTests */,
 				63DD854530757FD3005461FD /* CareerGridUITests */,
+				6349A7AD307B43DA00184CDB /* CareerGridWidgetExtension */,
+				6349A7D1307B536D00184CDB /* CareerGridShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6349A7AC307B43DA00184CDB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		6349A7D0307B536D00184CDB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		63DD852D30757FD0005461FD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				6349A7EF307C456300184CDB /* .gitignore in Resources */,
 			);
 		};
 		63DD853A30757FD3005461FD /* Resources */ = {
@@ -212,6 +392,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6349A7AA307B43DA00184CDB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		6349A7CE307B536D00184CDB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		63DD852B30757FD0005461FD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -230,6 +420,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6349A7C3307B43DE00184CDB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6349A7AD307B43DA00184CDB /* CareerGridWidgetExtension */;
+			targetProxy = 6349A7C2307B43DE00184CDB /* PBXContainerItemProxy */;
+		};
+		6349A7DB307B536D00184CDB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6349A7D1307B536D00184CDB /* CareerGridShareExtension */;
+			targetProxy = 6349A7DA307B536D00184CDB /* PBXContainerItemProxy */;
+		};
 		63DD853E30757FD3005461FD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 63DD852E30757FD0005461FD /* CareerGrid */;
@@ -243,6 +443,126 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		6349A7C7307B43DE00184CDB /* Debug configuration for PBXNativeTarget "CareerGridWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CareerGridWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CareerGridWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerGridWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid.CareerGridWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6349A7C8307B43DE00184CDB /* Release configuration for PBXNativeTarget "CareerGridWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = CareerGridWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CareerGridWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerGridWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid.CareerGridWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6349A7DF307B536D00184CDB /* Debug configuration for PBXNativeTarget "CareerGridShareExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = CareerGridShareExtension/CareerGridShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CareerGridShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerGridShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid.CareerGridShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6349A7E0307B536D00184CDB /* Release configuration for PBXNativeTarget "CareerGridShareExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = CareerGridShareExtension/CareerGridShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CareerGridShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerGridShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid.CareerGridShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		63DD854C30757FD3005461FD /* Debug configuration for PBXProject "CareerGrid" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -367,6 +687,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CareerGrid/CareerGrid.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -384,6 +705,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -399,6 +721,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CareerGrid/CareerGrid.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -416,6 +739,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.CareerGrid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -509,6 +833,22 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6349A7C6307B43DE00184CDB /* Build configuration list for PBXNativeTarget "CareerGridWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6349A7C7307B43DE00184CDB /* Debug configuration for PBXNativeTarget "CareerGridWidgetExtension" */,
+				6349A7C8307B43DE00184CDB /* Release configuration for PBXNativeTarget "CareerGridWidgetExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		6349A7DE307B536D00184CDB /* Build configuration list for PBXNativeTarget "CareerGridShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6349A7DF307B536D00184CDB /* Debug configuration for PBXNativeTarget "CareerGridShareExtension" */,
+				6349A7E0307B536D00184CDB /* Release configuration for PBXNativeTarget "CareerGridShareExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		63DD852A30757FD0005461FD /* Build configuration list for PBXProject "CareerGrid" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -12,14 +12,26 @@ struct SeedJobOpportunitiesUseCase {
         opportunities: [JobOpportunityModel]
     ) throws {
         let existingOpportunities = try repository.fetchAllOpportunities()
-        var existingIDs = Set(existingOpportunities.map(\.id))
 
-        for opportunity in opportunities {
-            guard existingIDs.insert(opportunity.id).inserted else {
+        let existingByID = Dictionary(
+            uniqueKeysWithValues: existingOpportunities.map {
+                ($0.id, $0)
+            }
+        )
+
+        for seed in opportunities {
+            guard let existing = existingByID[seed.id] else {
+                try repository.saveOpportunity(seed)
+                continue
+            }
+            guard existing.degreeRequirement != seed.degreeRequirement else {
                 continue
             }
 
-            try repository.saveOpportunity(opportunity)
+            var updated = existing
+            updated.degreeRequirement = seed.degreeRequirement
+
+            try repository.saveOpportunity(updated)
         }
     }
 }
