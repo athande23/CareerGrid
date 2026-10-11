@@ -3,71 +3,78 @@ import Observation
 
 @Observable
 final class ApplicationsViewModel {
-    
-    private let repository: CareerGridRepository
     private let advanceStageUseCase: AdvanceApplicationStageUseCase
     private let deleteJobApplicationUseCase: DeleteJobApplicationUseCase
     private let updateApplicationNotesUseCase: UpdateApplicationNotesUseCase
-    
+    private let fetchApplicationsUseCase: FetchApplicationsUseCase
+    private let fetchApplicationUseCase: FetchApplicationUseCase
+    private let fetchCalendarEventsUseCase: FetchCalendarEventsUseCase
+    private let manageCalendarEventUseCase: ManageCalendarEventUseCase
+    private let updateCalendarEventUseCase: UpdateCalendarEventUseCase
+    private let deleteCalendarEventUseCase: DeleteCalendarEventUseCase
+
     var applications: [JobApplicationModel] = []
+    var calendarEvents: [CalendarEventModel] = []
     var errorMessage: String?
     var isLoading = false
-    
+
     init(repository: CareerGridRepository) {
-        self.repository = repository
         self.advanceStageUseCase = AdvanceApplicationStageUseCase(
             repository: repository
         )
         self.deleteJobApplicationUseCase = DeleteJobApplicationUseCase(
             repository: repository
         )
-
         self.updateApplicationNotesUseCase = UpdateApplicationNotesUseCase(
             repository: repository
         )
+        self.fetchApplicationsUseCase = FetchApplicationsUseCase(
+            repository: repository
+        )
+        self.fetchApplicationUseCase = FetchApplicationUseCase(
+            repository: repository
+        )
+        self.fetchCalendarEventsUseCase = FetchCalendarEventsUseCase(
+            repository: repository
+        )
+        self.manageCalendarEventUseCase = ManageCalendarEventUseCase(
+            repository: repository
+        )
+        self.updateCalendarEventUseCase = UpdateCalendarEventUseCase(
+            repository: repository
+        )
+        self.deleteCalendarEventUseCase = DeleteCalendarEventUseCase(
+            repository: repository
+        )
     }
-    
+
     func loadApplications() {
         isLoading = true
         errorMessage = nil
-        
+
         do {
-            applications = try repository.fetchApplications()
+            applications = try fetchApplicationsUseCase.execute()
+            calendarEvents = try fetchCalendarEventsUseCase.execute()
         } catch {
-            errorMessage = "Unable to load applications."
+            errorMessage = "Unable to load applications or calendar events."
         }
-        
+
         isLoading = false
     }
-    
-    func moveStageForward(
-        id: UUID
-    ) {
-        updateStage(
-            id: id,
-            direction: .forward
-        )
+
+    func moveStageForward(id: UUID) {
+        updateStage(id: id, direction: .forward)
     }
-    
-    func moveStageBackward(
-        id: UUID
-    ) {
-        updateStage(
-            id: id,
-            direction: .backward
-        )
+
+    func moveStageBackward(id: UUID) {
+        updateStage(id: id, direction: .backward)
     }
-    
-    func deleteApplication(
-        id: UUID
-    ) {
+
+    func deleteApplication(id: UUID) {
         errorMessage = nil
-        
+
         do {
-            try deleteJobApplicationUseCase.execute(
-                applicationID: id
-            )
-            
+            try deleteJobApplicationUseCase.execute(applicationID: id)
             loadApplications()
         } catch let error as DeleteJobApplicationError {
             switch error {
@@ -78,19 +85,15 @@ final class ApplicationsViewModel {
             errorMessage = "Unable to delete this application."
         }
     }
-    
-    func updateNotes(
-        id: UUID,
-        notes: String?
-    ) {
+
+    func updateNotes(id: UUID, notes: String?) {
         errorMessage = nil
-        
+
         do {
             try updateApplicationNotesUseCase.execute(
                 applicationID: id,
                 notes: notes
             )
-            
             loadApplications()
         } catch let error as UpdateApplicationNotesError {
             switch error {
@@ -101,19 +104,18 @@ final class ApplicationsViewModel {
             errorMessage = "Unable to update application notes."
         }
     }
-    
+
     private func updateStage(
         id: UUID,
         direction: StageDirection
     ) {
         errorMessage = nil
-        
+
         do {
             try advanceStageUseCase.execute(
                 applicationID: id,
                 direction: direction
             )
-            
             loadApplications()
         } catch let error as AdvanceApplicationStageError {
             handleStageError(error)
@@ -121,25 +123,133 @@ final class ApplicationsViewModel {
             errorMessage = "Unable to update application stage."
         }
     }
-    
+
     private func handleStageError(
         _ error: AdvanceApplicationStageError
     ) {
         switch error {
         case .applicationNotFound:
             errorMessage = "This application could not be found."
-            
         case .applicationNotActive:
             errorMessage = "This application is no longer active."
-            
         case .rejectedApplication:
             errorMessage = "A rejected application cannot change stage."
-            
         case .invalidStage:
             errorMessage = "This application has an invalid stage."
-            
         case .invalidStageTransition:
             errorMessage = "The application cannot move further in that direction."
+        }
+    }
+
+    func stageDateEvent(
+        applicationID: UUID,
+        eventType: CalendarEventType
+    ) -> CalendarEventModel? {
+        calendarEvents.first {
+            $0.applicationID == applicationID &&
+            $0.eventType == eventType
+        }
+    }
+
+    func setStageDate(
+        applicationID: UUID,
+        eventType: CalendarEventType,
+        date: Date
+    ) {
+        errorMessage = nil
+
+        do {
+            guard let application = try fetchApplicationUseCase.execute(
+                id: applicationID
+            ) else {
+                errorMessage = "This application could not be found."
+                return
+            }
+
+            let expectedType: CalendarEventType
+
+            switch application.currentStage {
+            case .onlineAssessment:
+                expectedType = .onlineAssessment
+            case .interview:
+                expectedType = .interview
+            case .finalInterview:
+                expectedType = .finalInterview
+            default:
+                errorMessage = "This stage does not have a date field."
+                return
+            }
+
+            guard eventType == expectedType else {
+                errorMessage = "This date does not match the current stage."
+                return
+            }
+
+            let title: String
+
+            switch eventType {
+            case .onlineAssessment:
+                title = "OA: \(application.opportunity.roleTitle) at \(application.opportunity.company.name)"
+            case .interview:
+                title = "Interview: \(application.opportunity.roleTitle) at \(application.opportunity.company.name)"
+            case .finalInterview:
+                title = "Final Interview: \(application.opportunity.roleTitle) at \(application.opportunity.company.name)"
+            default:
+                errorMessage = "This event type is not supported here."
+                return
+            }
+
+            let events = try fetchCalendarEventsUseCase.execute()
+
+            if let existingEvent = events.first(where: {
+                $0.applicationID == applicationID &&
+                $0.eventType == eventType
+            }) {
+                let updatedEvent = CalendarEventModel(
+                    id: existingEvent.id,
+                    title: title,
+                    date: date,
+                    eventType: eventType,
+                    notes: existingEvent.notes,
+                    opportunityID: application.opportunity.id,
+                    applicationID: applicationID
+                )
+
+                try updateCalendarEventUseCase.execute(updatedEvent)
+            } else {
+                try manageCalendarEventUseCase.execute(
+                    title: title,
+                    date: date,
+                    eventType: eventType,
+                    opportunityID: application.opportunity.id,
+                    applicationID: applicationID
+                )
+            }
+
+            calendarEvents = try fetchCalendarEventsUseCase.execute()
+        } catch {
+            errorMessage = "Unable to save this stage date."
+        }
+    }
+
+    func clearStageDate(
+        applicationID: UUID,
+        eventType: CalendarEventType
+    ) {
+        errorMessage = nil
+
+        do {
+            if let event = stageDateEvent(
+                applicationID: applicationID,
+                eventType: eventType
+            ) {
+                try deleteCalendarEventUseCase.execute(
+                    eventID: event.id
+                )
+                calendarEvents = try fetchCalendarEventsUseCase.execute()
+            }
+        } catch {
+            errorMessage = "Unable to remove this stage date."
         }
     }
 }

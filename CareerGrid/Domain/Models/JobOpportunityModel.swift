@@ -12,6 +12,7 @@ struct JobOpportunityModel: Identifiable, Equatable {
     var sourceURL: URL?
     var applicationDeadline: Date?
     var isSaved: Bool
+    var degreeRequirement: String?
     
     init(
         id: UUID = UUID(),
@@ -24,7 +25,8 @@ struct JobOpportunityModel: Identifiable, Equatable {
         interviewProcess: String? = nil,
         sourceURL: URL? = nil,
         applicationDeadline: Date? = nil,
-        isSaved: Bool = false
+        isSaved: Bool = false,
+        degreeRequirement: String? = nil
     ) {
         self.id = id
         self.roleTitle = roleTitle
@@ -37,5 +39,6 @@ struct JobOpportunityModel: Identifiable, Equatable {
         self.sourceURL = sourceURL
         self.applicationDeadline = applicationDeadline
         self.isSaved = isSaved
+        self.degreeRequirement = degreeRequirement
     }
 }
