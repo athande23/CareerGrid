@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 struct InterviewPreparationView: View {
@@ -18,18 +19,27 @@ struct InterviewPreparationView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading applications...")
-                } else if viewModel.applications.isEmpty {
-                    emptyState
-                } else {
-                    practiceContent
+            ZStack {
+                CareerGridStyle.background.ignoresSafeArea()
+
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView("Loading applications...")
+                            .tint(CareerGridStyle.primaryBlue)
+                    } else if viewModel.applications.isEmpty {
+                        emptyState
+                    } else {
+                        practiceContent
+                    }
                 }
             }
             .navigationTitle("Practice")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.white, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .onAppear {
                 viewModel.loadApplications()
+
                 if let application = viewModel.selectedApplication {
                     notesDraft = application.notes ?? ""
                 }
@@ -55,28 +65,33 @@ struct InterviewPreparationView: View {
                 addQuestionSheet
             }
         }
+        .tint(CareerGridStyle.primaryBlue)
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: "checklist")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 36))
+                .foregroundStyle(CareerGridStyle.primaryBlue)
+                .frame(width: 76, height: 76)
+                .background(CareerGridStyle.primaryBlue.opacity(0.10))
+                .clipShape(RoundedRectangle(cornerRadius: 22))
 
-            Text("No applications")
-                .font(.headline)
+            Text("Prepare for your interviews")
+                .font(.title3.weight(.bold))
 
-            Text("Apply for a job to start preparing for interviews.")
-                .foregroundStyle(.secondary)
+            Text("Apply for a job to access role-specific interview preparation.")
+                .font(.subheadline)
+                .foregroundStyle(CareerGridStyle.secondaryText)
                 .multilineTextAlignment(.center)
         }
-        .padding()
+        .padding(28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var practiceContent: some View {
         VStack(spacing: 0) {
             applicationPicker
-            Divider()
 
             if viewModel.selectedApplication == nil {
                 selectApplicationState
@@ -87,9 +102,10 @@ struct InterviewPreparationView: View {
     }
 
     private var applicationPicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Application")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Choose an application")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(CareerGridStyle.secondaryText)
 
             Picker(
                 "Application",
@@ -110,60 +126,103 @@ struct InterviewPreparationView: View {
             ) {
                 ForEach(viewModel.applications, id: \.id) { application in
                     Text(
-                        "\(application.opportunity.roleTitle) - \(application.opportunity.company.name)"
+                        "\(application.opportunity.roleTitle) · \(application.opportunity.company.name)"
                     )
                     .tag(Optional(application.id))
                 }
             }
             .pickerStyle(.menu)
+            .tint(CareerGridStyle.primaryBlue)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .background(CareerGridStyle.background)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .padding()
+        .padding(.horizontal, CareerGridStyle.horizontalPadding)
+        .padding(.vertical, 14)
+        .background(.white)
     }
 
     private var selectApplicationState: some View {
         VStack(spacing: 12) {
             Image(systemName: "briefcase")
-                .font(.system(size: 36))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 32))
+                .foregroundStyle(CareerGridStyle.primaryBlue)
 
             Text("Select an application")
                 .font(.headline)
 
-            Text("Choose a job above to view interview preparation.")
-                .foregroundStyle(.secondary)
+            Text("Choose a job above to view its interview preparation.")
+                .font(.subheadline)
+                .foregroundStyle(CareerGridStyle.secondaryText)
                 .multilineTextAlignment(.center)
         }
-        .padding()
+        .padding(28)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var selectedApplicationContent: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
                 applicationHeader
                 interviewProcessSection
                 questionsSection
                 notesSection
             }
-            .padding()
+            .padding(.horizontal, CareerGridStyle.horizontalPadding)
+            .padding(.top, 18)
+            .padding(.bottom, 28)
         }
     }
 
     private var applicationHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(
-                viewModel.selectedApplication?
-                    .opportunity.roleTitle ?? ""
-            )
-            .font(.title2)
-            .fontWeight(.bold)
-
-            Text(
-                viewModel.selectedApplication?
+        HStack(alignment: .top, spacing: 12) {
+            CompanyLogoView(
+                companyName: viewModel.selectedApplication?
                     .opportunity.company.name ?? ""
             )
-            .font(.title3)
-            .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(
+                    viewModel.selectedApplication?
+                        .opportunity.roleTitle ?? ""
+                )
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.primary)
+
+                Text(
+                    viewModel.selectedApplication?
+                        .opportunity.company.name ?? ""
+                )
+                .font(.subheadline)
+                .foregroundStyle(CareerGridStyle.secondaryText)
+
+                if let stage = viewModel.selectedApplication?.currentStage {
+                    Text(stage.displayName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(CareerGridStyle.primaryBlue)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            CareerGridStyle.primaryBlue.opacity(0.10)
+                        )
+                        .clipShape(Capsule())
+                        .padding(.top, 3)
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
+                .stroke(CareerGridStyle.border, lineWidth: 1)
         }
     }
 
@@ -174,21 +233,31 @@ struct InterviewPreparationView: View {
            !interviewProcess.trimmingCharacters(
                 in: .whitespacesAndNewlines
            ).isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Interview Process")
-                    .font(.headline)
+            detailCard {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("Interview process", systemImage: "list.clipboard")
+                        .font(.headline)
 
-                Text(interviewProcess)
-                    .foregroundStyle(.secondary)
+                    Text(interviewProcess)
+                        .font(.subheadline)
+                        .foregroundStyle(CareerGridStyle.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
 
     private var questionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Interview Questions")
-                    .font(.headline)
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Interview questions")
+                        .font(.system(size: 18, weight: .semibold))
+
+                    Text("\(viewModel.interviewQuestions.count) questions")
+                        .font(.caption)
+                        .foregroundStyle(CareerGridStyle.secondaryText)
+                }
 
                 Spacer()
 
@@ -198,7 +267,14 @@ struct InterviewPreparationView: View {
                     newCategory = .general
                     showingAddQuestion = true
                 } label: {
-                    Image(systemName: "plus")
+                    Label("Add", systemImage: "plus")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 9)
+                        .background(
+                            CareerGridStyle.primaryBlue.opacity(0.10)
+                        )
+                        .clipShape(Capsule())
                 }
                 .accessibilityLabel("Add interview question")
             }
@@ -206,21 +282,31 @@ struct InterviewPreparationView: View {
             if viewModel.interviewQuestions.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "questionmark.circle")
-                        .font(.title2)
+                        .font(.system(size: 28))
+                        .foregroundStyle(CareerGridStyle.primaryBlue)
 
                     Text("No questions yet")
-                        .font(.subheadline)
+                        .font(.subheadline.weight(.semibold))
 
-                    Text("Add questions to practise for this role.")
+                    Text("Add questions and example answers to practise for this role.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(CareerGridStyle.secondaryText)
+                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.secondary.opacity(0.08))
+                .padding(22)
+                .background(.white)
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: CareerGridStyle.cornerRadius
+                    )
                 )
+                .overlay {
+                    RoundedRectangle(
+                        cornerRadius: CareerGridStyle.cornerRadius
+                    )
+                    .stroke(CareerGridStyle.border, lineWidth: 1)
+                }
             } else {
                 ForEach(viewModel.interviewQuestions, id: \.id) { question in
                     questionCard(question)
@@ -233,14 +319,23 @@ struct InterviewPreparationView: View {
         _ question: InterviewQuestionModel
     ) -> some View {
         DisclosureGroup {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Example answer")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(CareerGridStyle.primaryBlue)
+
                 Text(question.exampleAnswer)
-                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .foregroundStyle(CareerGridStyle.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Divider()
+                    .overlay(CareerGridStyle.border)
 
                 HStack {
                     Text(question.category.displayName)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(CareerGridStyle.secondaryText)
 
                     Spacer()
 
@@ -248,50 +343,88 @@ struct InterviewPreparationView: View {
                         viewModel.deleteQuestion(id: question.id)
                     } label: {
                         Label("Delete", systemImage: "trash")
-                            .font(.caption)
+                            .font(.caption.weight(.medium))
                     }
                 }
             }
-            .padding(.top, 8)
+            .padding(.top, 12)
         } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(question.question)
-                    .font(.body)
-                    .fontWeight(.medium)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(question.category.displayName.uppercased())
+                    .font(.system(size: 10, weight: .bold))
+                    .tracking(0.6)
+                    .foregroundStyle(CareerGridStyle.primaryBlue)
 
-                Text(question.category.displayName)
+                Text(question.question)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Tap to reveal example answer")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(CareerGridStyle.secondaryText)
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.secondary.opacity(0.08))
+        .tint(CareerGridStyle.primaryBlue)
+        .padding(16)
+        .background(.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
         )
+        .overlay {
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
+                .stroke(CareerGridStyle.border, lineWidth: 1)
+        }
     }
 
     private var notesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Recruitment Notes")
-                .font(.headline)
+        detailCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Recruitment notes", systemImage: "note.text")
+                    .font(.headline)
 
-            TextField(
-                "Add notes about the company or recruitment process...",
-                text: $notesDraft,
-                axis: .vertical
-            )
-            .lineLimit(4...8)
-            .textFieldStyle(.roundedBorder)
+                Text("Keep reminders, recruiter details and preparation notes here.")
+                    .font(.caption)
+                    .foregroundStyle(CareerGridStyle.secondaryText)
 
-            HStack {
-                Spacer()
+                TextField(
+                    "Add notes about the company or recruitment process...",
+                    text: $notesDraft,
+                    axis: .vertical
+                )
+                .lineLimit(4...8)
+                .textFieldStyle(.roundedBorder)
 
-                Button("Save Notes") {
-                    viewModel.updateNotes(notes: notesDraft)
+                HStack {
+                    Spacer()
+
+                    Button {
+                        viewModel.updateNotes(notes: notesDraft)
+                    } label: {
+                        Label("Save notes", systemImage: "checkmark")
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
             }
+        }
+    }
+
+    private func detailCard<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            content()
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: CareerGridStyle.cornerRadius)
+                .stroke(CareerGridStyle.border, lineWidth: 1)
         }
     }
 
@@ -307,7 +440,7 @@ struct InterviewPreparationView: View {
                     .lineLimit(3...6)
                 }
 
-                Section("Example Answer") {
+                Section("Example answer") {
                     TextField(
                         "Example answer",
                         text: $newAnswer,
@@ -353,6 +486,7 @@ struct InterviewPreparationView: View {
                 }
             }
         }
+        .tint(CareerGridStyle.primaryBlue)
     }
 
     private func addQuestion() {

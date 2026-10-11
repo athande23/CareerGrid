@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 struct HomeView: View {
@@ -12,32 +13,58 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading opportunities...")
-                } else if viewModel.opportunities.isEmpty {
-                    emptyState
-                } else {
-                    opportunityList
+            ZStack {
+                CareerGridStyle.background
+                    .ignoresSafeArea()
+
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView("Loading opportunities...")
+                            .tint(CareerGridStyle.primaryBlue)
+                    } else if viewModel.opportunities.isEmpty {
+                        emptyState
+                    } else {
+                        opportunityList
+                    }
                 }
             }
-            .navigationTitle("Home")
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 7) {
+                        Image(systemName: "square.grid.2x2.fill")
+                            .foregroundStyle(CareerGridStyle.primaryBlue)
+
+                        Text("CareerGrid")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.primary)
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         activeSheet = .add
                     } label: {
                         Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 36, height: 36)
+                            .background(CareerGridStyle.primaryBlue)
+                            .clipShape(Circle())
                     }
                     .accessibilityLabel("Add opportunity")
                 }
             }
+            .toolbarBackground(.white, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .onAppear {
                 viewModel.loadOpportunities()
             }
-            .sheet(item: $activeSheet, onDismiss: {
-                viewModel.loadOpportunities()
-            }) { sheet in
+            .sheet(
+                item: $activeSheet,
+                onDismiss: {
+                    viewModel.loadOpportunities()
+                }
+            ) { sheet in
                 switch sheet {
                 case .add:
                     AddOpportunityView(
@@ -74,88 +101,90 @@ struct HomeView: View {
                 Text(viewModel.errorMessage ?? "")
             }
         }
-    }
-
-    private var emptyState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "briefcase")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
-
-            Text("No job opportunities")
-                .font(.headline)
-
-            Text("Add a job opportunity to get started.")
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding()
+        .tint(CareerGridStyle.primaryBlue)
     }
 
     private var opportunityList: some View {
-        List {
-            ForEach(viewModel.opportunities) { opportunity in
-                Button {
-                    activeSheet = .details(opportunity)
-                } label: {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(opportunity.roleTitle)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Find your next opportunity")
+                        .font(.system(size: 25, weight: .bold))
+                        .foregroundStyle(.primary)
 
-                        Text(opportunity.company.name)
-                            .foregroundStyle(.secondary)
+                    Text("Explore roles and keep your career moving.")
+                        .font(.subheadline)
+                        .foregroundStyle(CareerGridStyle.secondaryText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12)
 
-                        Text(opportunity.industry)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                HStack {
+                    Text("Available opportunities")
+                        .font(.system(size: 18, weight: .semibold))
 
-                        if let location = opportunity.location,
-                           !location.trimmingCharacters(
-                               in: .whitespacesAndNewlines
-                           ).isEmpty {
-                            Label(
-                                location,
-                                systemImage: "mappin.and.ellipse"
-                            )
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        }
+                    Spacer()
 
-                        if let degree = opportunity.degreeRequirement,
-                           !degree.trimmingCharacters(
-                               in: .whitespacesAndNewlines
-                           ).isEmpty {
-                            Label(
-                                degree,
-                                systemImage: "graduationcap"
-                            )
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        }
+                    Text("\(viewModel.opportunities.count)")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(CareerGridStyle.primaryBlue)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            CareerGridStyle.primaryBlue.opacity(0.10)
+                        )
+                        .clipShape(Capsule())
+                }
 
-                        if let deadline = opportunity.applicationDeadline {
-                            Text(
-                                "Deadline: \(deadline.formatted(date: .abbreviated, time: .omitted))"
-                            )
-                            .font(.caption)
-                            .foregroundStyle(
-                                Calendar.current.startOfDay(for: deadline)
-                                    < Calendar.current.startOfDay(for: .now)
-                                    ? .red : .secondary
-                            )
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.opportunities) { opportunity in
+                        OpportunityCardView(
+                            opportunity: opportunity
+                        ) {
+                            activeSheet = .details(opportunity)
                         }
                     }
-                    .padding(.vertical, 4)
-                    .frame(
-                        maxWidth: .infinity,
-                        alignment: .leading
-                    )
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
             }
+            .padding(.horizontal, CareerGridStyle.horizontalPadding)
+            .padding(.bottom, 24)
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "briefcase")
+                .font(.system(size: 36))
+                .foregroundStyle(CareerGridStyle.primaryBlue)
+                .frame(width: 76, height: 76)
+                .background(
+                    CareerGridStyle.primaryBlue.opacity(0.10)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 22))
+
+            Text("No opportunities yet")
+                .font(.title3.weight(.bold))
+
+            Text("Add a job opportunity to start building your career pipeline.")
+                .font(.subheadline)
+                .foregroundStyle(CareerGridStyle.secondaryText)
+                .multilineTextAlignment(.center)
+
+            Button {
+                activeSheet = .add
+            } label: {
+                Label("Add opportunity", systemImage: "plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    .background(CareerGridStyle.primaryBlue)
+                    .clipShape(Capsule())
+            }
+            .padding(.top, 4)
+        }
+        .padding(28)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func handleNewOpportunity(
@@ -199,8 +228,6 @@ private enum HomeSheet: Identifiable {
     }
 }
 
-#Preview {
-    HomeView(
-        repository: CoreDataCareerGridRepository()
-    )
+#Preview("CareerGrid Home") {
+    HomeView(repository: MockCareerGridRepository())
 }
