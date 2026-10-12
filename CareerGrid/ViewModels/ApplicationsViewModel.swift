@@ -227,8 +227,33 @@ final class ApplicationsViewModel {
             }
 
             calendarEvents = try fetchCalendarEventsUseCase.execute()
+        } catch let error as ManageCalendarEventError {
+            switch error {
+            case .emptyTitle:
+                errorMessage = "Enter an event title."
+            case .noRelatedJob:
+                errorMessage = "Link this event to a job or application."
+            case .opportunityNotFound:
+                errorMessage = "The linked job opportunity could not be found."
+            case .applicationNotFound:
+                errorMessage = "The linked application could not be found."
+            }
+        } catch let error as UpdateCalendarEventError {
+            switch error {
+            case .eventNotFound:
+                errorMessage = "This calendar event could not be found."
+            case .emptyTitle:
+                errorMessage = "Enter an event title."
+            case .noRelatedJob:
+                errorMessage = "Link this event to a job or application."
+            case .opportunityNotFound:
+                errorMessage = "The linked job opportunity could not be found."
+            case .applicationNotFound:
+                errorMessage = "The linked application could not be found."
+            }
         } catch {
-            errorMessage = "Unable to save this stage date."
+            print("CareerGrid: Failed to save stage date: \(error)")
+            errorMessage = "We couldn't save this date. Please try again."
         }
     }
 

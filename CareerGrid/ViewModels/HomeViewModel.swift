@@ -130,19 +130,28 @@ final class HomeViewModel {
         }
     }
 
+
     func saveOpportunity(id: UUID) {
         errorMessage = nil
 
         do {
-            try saveJobOpportunityUseCase.execute(
-                opportunityID: id
-            )
+            try saveJobOpportunityUseCase.execute(opportunityID: id)
             loadOpportunities()
+        } catch let error as SaveJobOpportunityError {
+            switch error {
+            case .opportunityNotFound:
+                errorMessage = "This job could not be found. Refresh the list and try again."
+            case .alreadySaved:
+                errorMessage = "This job is already in your saved list."
+            case .invalidRoleTitle:
+                errorMessage = "This job has incomplete information and cannot be saved."
+            }
         } catch {
             print("CareerGrid: Failed to save opportunity: \(error)")
-            errorMessage = "Unable to save this opportunity."
+            errorMessage = "We couldn't save this job to your saved list. Please try again."
         }
     }
+
 
 
     func applyToOpportunity(id: UUID) {
@@ -176,9 +185,8 @@ final class HomeViewModel {
                     "You have already applied for this job. Check your Applications list."
             }
         } catch {
-            print("CareerGrid: Failed to apply to opportunity: \(error)")
-            errorMessage =
-                "Unable to apply for this job. Please try again."
+            print("CareerGrid: Failed to load opportunities: \(error)")
+            errorMessage = "We couldn't load job opportunities. Please try again."
         }
     }
     
@@ -228,7 +236,7 @@ final class HomeViewModel {
             }
         } catch {
             print("CareerGrid: Failed to create opportunity: \(error)")
-            errorMessage = "Unable to create this job opportunity. Check the Xcode console for details."
+            errorMessage = "We couldn't save this job. Please check the details and try again."
         }
     }
 }

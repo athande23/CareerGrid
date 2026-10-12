@@ -227,7 +227,7 @@ struct CareerGridTests {
             repository: repository
         )
         
-        let opportunity = makeOpportunity()
+        let opportunity = makeOpportunity(isSaved: true)
         repository.opportunities = [opportunity]
         
         let applicationDate = Date().addingTimeInterval(-3600)
@@ -277,7 +277,7 @@ struct CareerGridTests {
             repository: repository
         )
         
-        let opportunity = makeOpportunity()
+        let opportunity = makeOpportunity(isSaved: true)
         repository.opportunities = [opportunity]
         
         let futureDate = Date().addingTimeInterval(3600)
@@ -307,7 +307,7 @@ struct CareerGridTests {
             repository: repository
         )
         
-        let opportunity = makeOpportunity()
+        let opportunity = makeOpportunity(isSaved: true)
         repository.opportunities = [opportunity]
         
         let existingApplication = JobApplicationModel(
